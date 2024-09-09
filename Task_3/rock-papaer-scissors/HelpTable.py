@@ -20,7 +20,7 @@ class HelpTable:
                 if i == j:
                     table[i][j] = "Draw"
                 else:
-                    table[i][j] = "Win" if rules.determine_winner(moves[i-1], moves[j-1]) == "You win!" else "Lose"
+                    table[i][j] = "Win" if rules.determine_winner(moves[j-1], moves[i-1]) == "You win!" else "Lose"
 
         return table
 
@@ -40,6 +40,6 @@ class HelpTable:
             print(border)
 
 if __name__ == "__main__":
-    moves = ["rock", "paper", "3rd move", "4th", "5th"]  # Adjust the list of moves as needed
+    moves = ["rock", "paper", "scissors", "lizard", "spock", "6th move", "7th"]  # Adjust the list of moves as needed
     table = HelpTable.generate_table(moves)
     HelpTable.print_table(table)
