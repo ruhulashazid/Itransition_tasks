@@ -1,4 +1,3 @@
-
 **Task #4 (ALL GROUPS) **
 
 Use language and platform **FOR YOU GROUP**: 
@@ -8,8 +7,7 @@ Use language and platform **FOR YOU GROUP**:
 * C#, .NET, some kind ASP.NET, SQL Server (or any database).
 
 Create a working and deployed Web application with registration and authentication.
-Non-authenticated users should not have access to the user management (admin panel).
-Only authenticated users should have access the user management **table**: id, name, e-mail, last login time,registration time, status (active/blocked).
+Non-authenticated users should not have access to the user management (admin panel). Only authenticated users should have access the user management **table**: id, name, e-mail, last login time,registration time, status (active/blocked).
 
 **The leftmost column** of the table should contains checkboxes without labels for multiple selection 
 (table header contains only checkbox without label that selects or deselects all records).
