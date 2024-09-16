@@ -1,94 +1,105 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './css/UserManagement.css'; 
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
 
     useEffect(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/users`, {
-            headers: {
-                Authorization: localStorage.getItem('token')
+        const fetchUsers = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await axios.get('http://localhost:5000/api/users', {
+                    headers: { 'x-access-token': token }
+                });
+                setUsers(response.data);
+            } catch (error) {
+                console.error('Error fetching users:', error);
             }
-        }).then(res => {
-            setUsers(res.data);
-        }).catch(err => {
-            console.error(err);
-        });
+        };
+
+        fetchUsers();
     }, []);
 
-    const handleSelectUser = (userId) => {
-        setSelectedUsers(prev => {
-            if (prev.includes(userId)) {
-                return prev.filter(id => id !== userId);
-            } else {
-                return [...prev, userId];
-            }
-        });
+    const handleSelectUser = (id) => {
+        if (selectedUsers.includes(id)) {
+            setSelectedUsers(selectedUsers.filter(userId => userId !== id));
+        } else {
+            setSelectedUsers([...selectedUsers, id]);
+        }
     };
 
-    const handleBlockUsers = () => {
-        axios.post(`${process.env.REACT_APP_API_URL}/users/block`, {
-            userIds: selectedUsers,
-            action: 'block'
-        }, {
-            headers: {
-                Authorization: localStorage.getItem('token')
+    const handleBlockUsers = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            for (let userId of selectedUsers) {
+                await axios.put(`http://localhost:5000/api/users/block/${userId}`, {}, {
+                    headers: { 'x-access-token': token }
+                });
             }
-        }).then(res => {
             setUsers(users.map(user => selectedUsers.includes(user.id) ? { ...user, status: 'blocked' } : user));
             setSelectedUsers([]);
-        }).catch(err => {
-            console.error(err);
-        });
+        } catch (error) {
+            console.error('Error blocking users:', error);
+        }
     };
 
-    const handleUnblockUsers = () => {
-        axios.post(`${process.env.REACT_APP_API_URL}/users/block`, {
-            userIds: selectedUsers,
-            action: 'unblock'
-        }, {
-            headers: {
-                Authorization: localStorage.getItem('token')
+    const handleUnblockUsers = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            for (let userId of selectedUsers) {
+                await axios.put(`http://localhost:5000/api/users/unblock/${userId}`, {}, {
+                    headers: { 'x-access-token': token }
+                });
             }
-        }).then(res => {
             setUsers(users.map(user => selectedUsers.includes(user.id) ? { ...user, status: 'active' } : user));
             setSelectedUsers([]);
-        }).catch(err => {
-            console.error(err);
-        });
+        } catch (error) {
+            console.error('Error unblocking users:', error);
+        }
     };
 
-    const handleDeleteUsers = () => {
-        axios.post(`${process.env.REACT_APP_API_URL}/users/delete`, {
-            userIds: selectedUsers
-        }, {
-            headers: {
-                Authorization: localStorage.getItem('token')
+    const handleDeleteUsers = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            for (let userId of selectedUsers) {
+                await axios.delete(`http://localhost:5000/api/users/${userId}`, {
+                    headers: { 'x-access-token': token }
+                });
             }
-        }).then(res => {
             setUsers(users.filter(user => !selectedUsers.includes(user.id)));
             setSelectedUsers([]);
-        }).catch(err => {
-            console.error(err);
-        });
+        } catch (error) {
+            console.error('Error deleting users:', error);
+        }
     };
 
     return (
-        <div className="container mt-5">
-            <div className="toolbar mb-3">
-                <button className="btn btn-danger" onClick={handleBlockUsers}>Block</button>
-                <button className="btn btn-warning" onClick={handleUnblockUsers}>Unblock</button>
-                <button className="btn btn-danger" onClick={handleDeleteUsers}>Delete</button>
+        <div className="container mt-4">
+            <div className="header">
+                <h2>Hello Johan, <a href="/logout" className="logout-link">Logout</a></h2>
             </div>
-            <table className="table">
+            <div className="toolbar mb-3">
+                <button className="btn btn-custom me-2" onClick={handleBlockUsers}>
+                    <i className="fas fa-lock"></i> Block
+                </button>
+                <button className="btn btn-custom me-2" onClick={handleUnblockUsers}>
+                    <i className="fas fa-unlock"></i> Unblock
+                </button>
+                <button className="btn btn-custom" onClick={handleDeleteUsers}>
+                    <i className="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+            <table className="table table-custom">
                 <thead>
                     <tr>
                         <th><input type="checkbox" /></th>
+                        <th>Id</th>
                         <th>Name</th>
-                        <th>Position</th>
                         <th>Email</th>
-                        <th>Last Login</th>
+                        <th>Registration time</th>
+                        <th>Last login time</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -96,18 +107,29 @@ const UserManagement = () => {
                     {users.map(user => (
                         <tr key={user.id}>
                             <td>
-                                <input type="checkbox" checked={selectedUsers.includes(user.id)}
-                                    onChange={() => handleSelectUser(user.id)} />
+                                <input
+                                    type="checkbox"
+                                    checked={selectedUsers.includes(user.id)}
+                                    onChange={() => handleSelectUser(user.id)}
+                                />
                             </td>
+                            <td>{user.id}</td>
                             <td>{user.name}</td>
-                            <td>{user.position}</td>
                             <td>{user.email}</td>
-                            <td>{user.last_login}</td>
-                            <td>{user.status}</td>
+                            <td>{user.registration_time}</td>
+                            <td>{user.last_login_time}</td>
+                            <td>{user.status === 'blocked' ? (
+                                <span className="text-danger">Blocked</span>
+                            ) : (
+                                <span className="text-success">Active</span>
+                            )}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            <div className="show-more">
+                <button className="btn btn-custom">Show more</button>
+            </div>
         </div>
     );
 };
