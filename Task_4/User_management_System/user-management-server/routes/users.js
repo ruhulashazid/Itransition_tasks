@@ -1,14 +1,11 @@
-
-// module.exports = router;
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // MySQL User model
+const User = require('../models/User'); 
 const router = express.Router();
 
 // Register a new user
 router.post('/register', async (req, res) => {
-    console.log("regisyt")
   const { name, email, password, } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -22,16 +19,21 @@ router.post('/register', async (req, res) => {
 
 // Login user and update last login time
 router.post('/login', (req, res) => {
-    console.log("connect")
+
   const { email, password } = req.body;
   const currentDate = new Date();
-
+  console.log("connect")
   User.findByEmail(email, async (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     if (results.length === 0) return res.status(404).json({ error: 'User not found' });
 
     const user = results[0];
 
+     // Check if the user is blocked
+     if (user.status === 'blocked') {
+         return res.status(403).json({ error: 'Your account is blocked' });
+     }
+     
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
