@@ -22,7 +22,6 @@ router.post('/login', (req, res) => {
 
   const { email, password } = req.body;
   const currentDate = new Date();
-  console.log("connect")
   User.findByEmail(email, async (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     if (results.length === 0) return res.status(404).json({ error: 'User not found' });

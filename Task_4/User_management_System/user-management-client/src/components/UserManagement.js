@@ -106,8 +106,7 @@ const UserManagement = () => {
         }
     };
 
-    const handleShowDeleteModal = (userId) => {
-        setUserToDelete(userId);
+    const handleShowDeleteModal = () => {
         setShowModal(true);
     };
 
@@ -119,18 +118,19 @@ const UserManagement = () => {
     const handleDeleteUsers = async () => {
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`http://localhost:5000/api/users/${userToDelete}`, {
-                headers: { 'authorization': `Bearer ${token}` }
-            });
-            setUsers(users.filter(user => user.id !== userToDelete));
-            setSelectedUsers(selectedUsers.filter(userId => userId !== userToDelete));
+            for (let userId of selectedUsers) {
+                await axios.delete(`http://localhost:5000/api/users/${userId}`, {
+                    headers: { 'authorization': `Bearer ${token}` }
+                });
+            }
+            setUsers(users.filter(user => !selectedUsers.includes(user.id)));
+            setSelectedUsers([]); // Clear the selection after deletion
             handleCloseModal();
         } catch (error) {
             console.error('Error deleting users:', error);
         }
     };
-
-    console.log(users)
+    
 
     return (
         <div className="container mt-4">
