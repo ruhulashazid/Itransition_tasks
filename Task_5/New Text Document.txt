@@ -1,0 +1,4 @@
+Full name: Md. Ruhul Amin Shazid
+Deployed project Link: https://user-generator-sigma.vercel.app/
+Code Link: https://github.com/ruhulashazid/Itransition_tasks/tree/main/Task_5/user-generator/user-generator
+Recorded video: https://drive.google.com/file/d/1RHaSJOwanzibymO18fZOAdxkDY4yXbQr/view?usp=sharing
